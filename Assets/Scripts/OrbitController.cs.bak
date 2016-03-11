@@ -1,0 +1,274 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class OrbitController : MonoBehaviour {
+
+    [System.Serializable]
+    public struct OrbitPosition
+    {
+        public GameObject orbitObject;
+        public Vector3 orbitPoint;
+    }
+    [System.Serializable]
+    public struct OrbitShape
+    {
+        public float apoapsis;
+        public float periapsis;
+
+        public float eccentricity;
+    };
+    [System.Serializable]
+    public struct OrbitAngle
+    {
+        public float eclipticInclination;
+        public float ascendingNodeLongitude;
+        public float periapsisArgument;
+    };
+
+    //Introduction
+    //https://www.youtube.com/watch?v=82p-DYgGFjI
+    //https://www.youtube.com/watch?v=CEH2HyVnKQM
+    //Ellipse equation
+    //https://en.wikipedia.org/wiki/ellipse
+    //Orbit variables
+    //https://en.wikipedia.org/wiki/Orbital_elements
+    //https://en.wikipedia.org/wiki/Orbital_inclination
+    //Rotation variables
+    //https://en.wikipedia.org/wiki/Axial_tilt
+
+
+
+    /*
+    ** Orbit Variables
+    */
+    public OrbitPosition orbitPosition;
+    private Vector3 orbitCenter;
+    //The 6 Keplerian elements
+    public OrbitShape orbitShape;
+    public OrbitAngle orbitAngle;
+    [Space(18)]
+    public float orbitPeriod;
+    //Not the actual angle of the object to the center, but the angle as if the rotation was a cicle
+    //Set to mean anomaly for the start of the orbit
+    public float orbitEccentricAnomaly;
+    [Space(18)]
+
+    /*
+    ** Rotation variables
+    */
+    public float rotationAxialTilt;
+    public GameObject rotationBody;
+    public float rotationPeriod;
+    public float rotationState;
+    [Space(18)]
+
+    /*
+    ** Ellipse variables
+    */
+    public bool displayEllipse = true;
+    private GameObject ellipseObject;
+    private LineRenderer ellipseLine;
+    private const int ellipseResolution = 50;
+    private const float ellipseWidth = 0.005f;
+    private GameObject mainCamera;
+
+    /*
+    ** Time variables
+    */
+    static private float deltaTime;
+    static private bool timeWarp = false;
+    private bool warper = false;
+    private bool warped = false;
+
+    //Called by the Unity Editor
+    void OnValidate()
+    {
+        //Essentail Corrections
+        orbitShape.eccentricity = Mathf.Clamp(orbitShape.eccentricity, 0.0f, 1.0f);
+        //Non Essential Corrections
+        orbitEccentricAnomaly -= 360.0f * Mathf.Floor(orbitEccentricAnomaly / 360.0f);
+        orbitAngle.ascendingNodeLongitude -= 360.0f * Mathf.Floor(orbitAngle.ascendingNodeLongitude / 360.0f);
+        orbitAngle.eclipticInclination -= 360.0f * Mathf.Floor(orbitAngle.eclipticInclination / 360.0f);
+        orbitAngle.periapsisArgument -= 360.0f * Mathf.Floor(orbitAngle.periapsisArgument / 360.0f);
+        rotationAxialTilt -= 360.0f * Mathf.Floor(rotationAxialTilt / 360.0f);
+
+        /*
+        ** Updates Position to reflect starting point
+        */
+        if (orbitPosition.orbitObject)
+            orbitCenter = orbitPosition.orbitObject.transform.localPosition;
+        else
+            orbitCenter = orbitPosition.orbitPoint;
+        float tmp;
+        //Update orbit
+        tmp = orbitPeriod;
+        orbitPeriod = 0;
+        UpdateOrbit();
+        orbitPeriod = tmp;
+        //Update rotation
+        tmp = rotationPeriod;
+        rotationPeriod = 0;
+        UpdateRotation();
+        rotationPeriod = tmp;
+    }
+
+    // Use this for initialization
+    void Start () {
+        BuildEllipse();
+    }
+
+    void BuildEllipse()
+    {
+        //For Ellipse Update
+        mainCamera = Camera.main.gameObject;
+        //Build Ellipse object
+        ellipseObject = new GameObject(this.name + " Ellipse");
+        ellipseLine = ellipseObject.AddComponent<LineRenderer>();
+        ellipseLine.useWorldSpace = false;
+        ellipseLine.material = Resources.Load<Material>("EllipseLineMaterial");
+        ellipseLine.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        ellipseLine.receiveShadows = false;
+        //Allocate Ellipse points
+        ellipseLine.SetVertexCount(ellipseResolution + 1);
+    }
+
+    void LateUpdate()
+    {
+        //Disable Warp
+        if (warper && warped)
+        {
+            timeWarp = false;
+            warper = false;
+            warped = false;
+        }
+        if (this.name == "Earth" && Input.GetKeyUp("space"))
+        {
+            WarpOrbitPosition(this.orbitEccentricAnomaly - 0.2f);
+        }
+        if (this.name == "Earth" && Input.GetKey(KeyCode.E))
+        {
+            WarpOrbitPosition(0.1f);
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
+        //NON OPT : Update center in case the GameObject or the OrbitPoint changed
+        if (orbitPosition.orbitObject)
+            orbitCenter = orbitPosition.orbitObject.transform.localPosition;
+        else
+            orbitCenter = orbitPosition.orbitPoint;
+
+        //Update Warp
+        if (!timeWarp)
+            deltaTime = Time.deltaTime;
+        else
+            warped = true;
+
+        UpdateEllipse();
+        UpdateOrbit();
+        UpdateRotation();
+    }
+
+    void UpdateEllipse() {
+        ellipseObject.SetActive(displayEllipse);
+        if (!displayEllipse)
+            return;
+        //Change Line Size according to camera distance
+        float newEllipseWidth = Vector3.Distance(ellipseLine.transform.localPosition + orbitCenter, mainCamera.transform.position) * ellipseWidth;
+        ellipseLine.SetWidth(newEllipseWidth, newEllipseWidth);
+
+        //NON OPT :
+        //Set current parent
+        ellipseObject.transform.SetParent(this.transform.parent, false);
+
+        //Preparing Variables
+        float centerOffset = (orbitShape.apoapsis - orbitShape.periapsis) / 2.0f;
+        float semiMajorAxis = (orbitShape.periapsis + orbitShape.apoapsis) / 2;
+        float semiMinorAxis = semiMajorAxis * Mathf.Sqrt(1.0f - Mathf.Pow(orbitShape.eccentricity, 2));
+        Quaternion orientation = Quaternion.AngleAxis(orbitAngle.periapsisArgument, Vector3.down);
+        orientation *= Quaternion.AngleAxis(orbitAngle.eclipticInclination, Quaternion.Inverse(orientation) * Vector3.forward);
+        orientation *= Quaternion.AngleAxis(orbitAngle.ascendingNodeLongitude, Quaternion.Inverse(orientation) * Vector3.down);
+
+        //Create Ellispe points
+        Vector3[] positions = new Vector3[ellipseResolution + 1];
+        for (int i = 0; i <= ellipseResolution; i++)
+        {
+            float step = (float)i / (float)ellipseResolution * 360.0f;
+            positions[i].x = orbitCenter.x + (semiMajorAxis * Mathf.Cos(step * Mathf.Deg2Rad)) - centerOffset;
+            positions[i].z = orbitCenter.z + (semiMinorAxis * Mathf.Sin(step * Mathf.Deg2Rad));
+            positions[i].y = orbitCenter.y;
+            positions[i] = orientation * positions[i];
+        }
+
+        //Set Ellipse points
+        ellipseLine.SetVertexCount(ellipseResolution + 1);
+        for (int i = 0; i <= ellipseResolution; i++)
+            ellipseLine.SetPosition(i, positions[i]);
+    }
+
+    void UpdateOrbit() {
+        Vector3 newPosition;
+        //NON OPT : Preparing variables
+        float centerOffset = (orbitShape.apoapsis - orbitShape.periapsis) / 2.0f;
+        float semiMajorAxis = (orbitShape.periapsis + orbitShape.apoapsis) / 2.0f;
+        float semiMinorAxis = semiMajorAxis * Mathf.Sqrt(1.0f - Mathf.Pow(orbitShape.eccentricity, 2));
+        Quaternion orientation = Quaternion.AngleAxis(orbitAngle.periapsisArgument, Vector3.down);
+        orientation *= Quaternion.AngleAxis(orbitAngle.eclipticInclination, Quaternion.Inverse(orientation) * Vector3.forward);
+        orientation *= Quaternion.AngleAxis(orbitAngle.ascendingNodeLongitude, Quaternion.Inverse(orientation) * Vector3.down);
+
+        //Increment angle
+        if (orbitPeriod != 0)
+            orbitEccentricAnomaly += (360.0f / orbitPeriod) * deltaTime;
+
+        //Orbit on x z plane
+        newPosition.x = orbitCenter.x + (semiMajorAxis * Mathf.Cos(orbitEccentricAnomaly * Mathf.Deg2Rad)) - centerOffset;
+        newPosition.z = orbitCenter.z + (semiMinorAxis * Mathf.Sin(orbitEccentricAnomaly * Mathf.Deg2Rad));
+        newPosition.y = orbitCenter.y;
+        newPosition = orientation * newPosition;
+
+        //Apply new position
+        this.transform.localPosition = newPosition;
+
+        //Avoid eccentricAnomaly overflow
+        orbitEccentricAnomaly -= 360.0f * Mathf.Floor(orbitEccentricAnomaly / 360.0f);
+    }
+
+    void UpdateRotation() {
+        //NOT OPT : Set initial angle to the normal of the orbit dics and tilt
+        Quaternion orientation = Quaternion.AngleAxis(orbitAngle.periapsisArgument, Vector3.down);
+        orientation *= Quaternion.AngleAxis(orbitAngle.eclipticInclination, Quaternion.Inverse(orientation) * Vector3.forward);
+        orientation *= Quaternion.AngleAxis(orbitAngle.ascendingNodeLongitude, Quaternion.Inverse(orientation) * Vector3.down);
+        //Apply tilt
+        orientation *= Quaternion.Euler(0, 0, rotationAxialTilt);
+        //Commit new orientation
+        this.transform.localRotation = orientation;
+
+        //Calculate new rotation
+        if (rotationPeriod != 0)
+            rotationState -= 360f / rotationPeriod * deltaTime;
+        Quaternion newRotation = Quaternion.Euler(0, rotationState, 0);
+        //Commit new rotation
+        if (rotationBody)
+            rotationBody.transform.localRotation = newRotation;
+        else
+            this.transform.localRotation *= newRotation;
+
+        //Avoid bodyRotationAngle overflow
+        rotationState -= 360f * Mathf.Floor(rotationState / 360f);
+    }
+
+    //ONLY CALL IN LATE UPDATE
+    public void WarpOrbitPosition(float angle) {
+        if (orbitPeriod == 0)
+            return;
+        float angleDiffStep = angle - orbitEccentricAnomaly;
+        //Requiered deltaTime to do the angleDiffStep
+        deltaTime = (orbitPeriod / 360.0f) * angleDiffStep;
+        //Apply requieredDeltaTime for this round of updates only
+        timeWarp = true;
+        warper = true;
+        warped = false;
+    }
+
+}
