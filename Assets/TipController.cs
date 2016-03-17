@@ -23,8 +23,8 @@ public class TipController : MonoBehaviour {
         {
             if (btn)
             {
-                btn.select();
                 clicked = true;
+                btn.select();
             }
         }
 	

@@ -100,6 +100,7 @@ public class OrbitController : MonoBehaviour {
     private LineRenderer ellipseLine;
     public int ellipseResolution = 100;
     public float ellipseWidth = 1.0f;
+    public static Material ellipseMaterial;
 
     /*
     ** Time variables
@@ -160,8 +161,8 @@ public class OrbitController : MonoBehaviour {
         //Build Ellipse object
         ellipseObject = new GameObject(this.name + " Ellipse");
         ellipseLine = ellipseObject.AddComponent<LineRenderer>();
+        ellipseLine.material = ellipseMaterial;
         ellipseLine.useWorldSpace = false;
-        ellipseLine.material = Resources.Load<Material>("EllipseLineMaterial");
         ellipseLine.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         ellipseLine.receiveShadows = false;
     }
@@ -206,6 +207,8 @@ public class OrbitController : MonoBehaviour {
     //This function should be called only once if the orbit system was static
     private void UpdatesVariables()
     {
+        //Set size to 1
+        this.transform.localScale = Vector3.one;
         //Update fatherOrbit in case of change
         if (this.transform.parent)
             fatherOrbit = this.transform.parent.GetComponent<OrbitController>();
@@ -411,5 +414,22 @@ public class OrbitController : MonoBehaviour {
     {
         return orbitOrientation * Vector3.right;
     }
+
+    /*public string GetInfo()
+    {
+        string info = "toto";
+
+        info += "Physical characteristics\n"
+        if (rotationBodySize.equatorialRadiusDepth == rotationBodySize.equatorialRadiusWidth)
+        {
+
+        }
+        else
+        {
+            info += "Dimensions " + rotationBodySize.equatorialRadiusWidth + rotationBodySize.equatorialRadiusWidth
+        }
+
+        return info;
+    }*/
 
 }

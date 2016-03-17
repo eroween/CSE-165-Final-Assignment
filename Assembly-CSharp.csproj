@@ -45,9 +45,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\EarthController.cs" />
+     <Compile Include="Assets\JupiterController.cs" />
+     <Compile Include="Assets\MarsController.cs" />
      <Compile Include="Assets\MenuButton.cs" />
+     <Compile Include="Assets\MercuryController.cs" />
+     <Compile Include="Assets\NeptuneController.cs" />
+     <Compile Include="Assets\P67Controller.cs" />
+     <Compile Include="Assets\PlanetController.cs" />
      <Compile Include="Assets\PlayButton.cs" />
+     <Compile Include="Assets\PlutoController.cs" />
      <Compile Include="Assets\QuitButton.cs" />
+     <Compile Include="Assets\SaturnController.cs" />
      <Compile Include="Assets\Scripts\CameraScript.cs" />
      <Compile Include="Assets\Scripts\OrbitController.cs" />
      <Compile Include="Assets\Scripts\SimulatorController.cs" />
@@ -59,15 +68,37 @@
      <Compile Include="Assets\Scripts\Stylus5.cs" />
      <Compile Include="Assets\Scripts\Stylus5Tip.cs" />
      <Compile Include="Assets\StylusButton.cs" />
+     <Compile Include="Assets\SunController.cs" />
      <Compile Include="Assets\TipController.cs" />
      <Compile Include="Assets\UnZoomButton.cs" />
+     <Compile Include="Assets\UranusController.cs" />
+     <Compile Include="Assets\VenusController.cs" />
      <Compile Include="Assets\Wrap.cs" />
      <Compile Include="Assets\ZoomButton.cs" />
+     <Compile Include="Assets\ZoomController.cs" />
+     <Compile Include="Assets\loader.cs" />
      <Compile Include="Assets\zSpace\Core\Scripts\ZSCore.cs" />
      <Compile Include="Assets\zSpace\Core\Scripts\ZSCoreSingleton.cs" />
      <Compile Include="Assets\zSpace\Core\Scripts\ZSFinalCamera.cs" />
      <Compile Include="Assets\zSpace\Core\Scripts\ZSLeftCamera.cs" />
      <Compile Include="Assets\zSpace\Core\Scripts\ZSRightCamera.cs" />
+     <None Include="Assets\Descriptions\Mars\Deimos.txt" />
+     <None Include="Assets\Descriptions\Pluto\Charon.txt" />
+     <None Include="Assets\Descriptions\Earth\Earth.txt" />
+     <None Include="Assets\Descriptions\Mars\Mars.txt" />
+     <None Include="Assets\Descriptions\Pluto\Nix.txt" />
+     <None Include="Assets\Descriptions\Mercury\Mercury.txt" />
+     <None Include="Assets\Descriptions\Uranus\Uranus.txt" />
+     <None Include="Assets\Descriptions\Sun\Sun.txt" />
+     <None Include="Assets\Descriptions\Neptune\Neptune.txt" />
+     <None Include="Assets\Descriptions\Jupiter\Jupiter.txt" />
+     <None Include="Assets\Descriptions\Saturn\Saturn.txt" />
+     <None Include="Assets\Descriptions\Mars\Phobos.txt" />
+     <None Include="Assets\test.txt" />
+     <None Include="Assets\Descriptions\Venus\Venus.txt" />
+     <None Include="Assets\Descriptions\Earth\Moon.txt" />
+     <None Include="Assets\Descriptions\Pluto\Pluto.txt" />
+     <None Include="Assets\Descriptions\Comet\Comet.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Programs/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

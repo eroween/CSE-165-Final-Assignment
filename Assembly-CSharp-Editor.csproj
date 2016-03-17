@@ -46,6 +46,23 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\zSpace\Core\Editor\ZSCoreDiagnosticWindow.cs" />
+     <None Include="Assets\Descriptions\Mars\Deimos.txt" />
+     <None Include="Assets\Descriptions\Pluto\Charon.txt" />
+     <None Include="Assets\Descriptions\Earth\Earth.txt" />
+     <None Include="Assets\Descriptions\Mars\Mars.txt" />
+     <None Include="Assets\Descriptions\Pluto\Nix.txt" />
+     <None Include="Assets\Descriptions\Mercury\Mercury.txt" />
+     <None Include="Assets\Descriptions\Uranus\Uranus.txt" />
+     <None Include="Assets\Descriptions\Sun\Sun.txt" />
+     <None Include="Assets\Descriptions\Neptune\Neptune.txt" />
+     <None Include="Assets\Descriptions\Jupiter\Jupiter.txt" />
+     <None Include="Assets\Descriptions\Saturn\Saturn.txt" />
+     <None Include="Assets\Descriptions\Mars\Phobos.txt" />
+     <None Include="Assets\test.txt" />
+     <None Include="Assets\Descriptions\Venus\Venus.txt" />
+     <None Include="Assets\Descriptions\Earth\Moon.txt" />
+     <None Include="Assets\Descriptions\Pluto\Pluto.txt" />
+     <None Include="Assets\Descriptions\Comet\Comet.txt" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>C:/Programs/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

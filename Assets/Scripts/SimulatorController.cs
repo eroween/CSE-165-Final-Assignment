@@ -7,7 +7,9 @@ public class SimulatorController : MonoBehaviour
     [Space(18)]
     public float timeMult = 1;
     public float generalScaleMult = 1;
+    [Space(18)]
     public float ellipseWidthMult = 1;
+    public Material ellipseMaterial;
     [Space(18)]
     public float starSizeMult = 1;
     public float planetSizeMult = 1;
@@ -46,6 +48,7 @@ public class SimulatorController : MonoBehaviour
     {
         OrbitController.timeMult  = timeMult;
         OrbitController.ellipseWidthMult = ellipseWidthMult;
+        OrbitController.ellipseMaterial = ellipseMaterial;
 
         OrbitController.starSizeMult  = starSizeMult * generalScaleMult;
         OrbitController.planetSizeMult  = planetSizeMult * generalScaleMult;

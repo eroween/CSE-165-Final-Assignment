@@ -5,6 +5,6 @@ public class UnZoomButton : StylusButton
 {
     public override void select()
     {
-        Debug.Log("UNZOOOOOM");
+        ZoomController.UnZoom();
     }
 }

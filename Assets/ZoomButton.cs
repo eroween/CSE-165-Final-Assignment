@@ -5,6 +5,6 @@ public class ZoomButton : StylusButton
 {
     public override void select()
     {
-        Debug.Log("ZOOOOOOOOOOOOM");
+        ZoomController.Zoom();
     }
 }
